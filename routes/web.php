@@ -36,5 +36,6 @@ Route::resource('attendances', App\Http\Controllers\AttendanceController::class)
 Route::resource('allowances', App\Http\Controllers\AllowanceController::class);
 Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
 Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn'])->name('attendance.check-in');
+Route::post('verify-face', [AttendanceController::class, 'verifyFace'])->name('verify.face');
 Route::resource('attendances', AttendanceController::class);
 
