@@ -19,7 +19,8 @@ class Employee extends Model
         'salary',
         'disability_status',
         'job_basis',
-        'emergency_contact'
+        'emergency_contact',
+        'stored_face_image_path'
     ];
 
     protected $casts = [
@@ -32,7 +33,8 @@ class Employee extends Model
         'salary' => 'string',
         'disability_status' => 'string',
         'job_basis' => 'string',
-        'emergency_contact' => 'string'
+        'emergency_contact' => 'string',
+        'stored_face_image_path' => 'string'
     ];
 
     public static array $rules = [
@@ -48,7 +50,8 @@ class Employee extends Model
         'job_basis' => 'nullable|string|max:50',
         'emergency_contact' => 'nullable|string|max:50',
         'created_at' => 'required',
-        'updated_at' => 'required'
+        'updated_at' => 'required',
+        'stored_face_image_path' => 'required|string|max:250'
     ];
 
     

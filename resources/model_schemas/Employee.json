@@ -166,5 +166,17 @@
         "inForm": false,
         "inIndex": false,
         "inView": false
+    },
+    {
+        "name": "stored_face_image_path",
+        "dbType": "string",
+        "htmlType": "text",
+        "validations": "required|string|max:250|string|max:250",
+        "searchable": true,
+        "fillable": true,
+        "primary": false,
+        "inForm": true,
+        "inIndex": true,
+        "inView": true
     }
 ]

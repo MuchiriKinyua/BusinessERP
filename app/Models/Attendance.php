@@ -32,7 +32,9 @@ class Attendance extends Model
         'check_out_time' => 'nullable',
         'attendance_date' => 'nullable',
         'over_time' => 'nullable',
-        'under_time' => 'nullable'
+        'under_time' => 'nullable',
+        'created_at' => 'required',
+        'updated_at' => 'required'
     ];
 
     

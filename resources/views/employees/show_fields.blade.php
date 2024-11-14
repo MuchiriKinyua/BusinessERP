@@ -64,3 +64,9 @@
     <p>{{ $employee->emergency_contact }}</p>
 </div>
 
+<!-- Stored Face Image Path Field -->
+<div class="col-sm-12">
+    {!! Form::label('stored_face_image_path', 'Stored Face Image Path:') !!}
+    <p>{{ $employee->stored_face_image_path }}</p>
+</div>
+

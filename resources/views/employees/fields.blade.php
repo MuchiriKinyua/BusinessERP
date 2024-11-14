@@ -69,3 +69,9 @@
     {!! Form::label('emergency_contact', 'Emergency Contact:') !!}
     {!! Form::text('emergency_contact', null, ['class' => 'form-control', 'maxlength' => 50, 'maxlength' => 50]) !!}
 </div>
+
+<!-- Stored Face Image Path Field -->
+<div class="form-group col-sm-6">
+    {!! Form::label('stored_face_image_path', 'Stored Face Image Path:') !!}
+    {!! Form::text('stored_face_image_path', null, ['class' => 'form-control', 'required', 'maxlength' => 250, 'maxlength' => 250]) !!}
+</div>

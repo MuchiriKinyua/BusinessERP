@@ -37,7 +37,7 @@
         // Define the geofence coordinates and radius (in meters)
         const geofenceLatitude = -1.2822546;
         const geofenceLongitude = 36.8944984;
-        const geofenceRadius = 1000; // Radius in meters
+        const geofenceRadius = 100; // Radius in meters
 
         // JavaScript for checking geofence on "Add New"
         function checkGeofence() {

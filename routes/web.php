@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AttendanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,14 +27,10 @@ Route::resource('promotions', App\Http\Controllers\PromotionController::class);
 Route::resource('payrolls', App\Http\Controllers\PayrollController::class);
 Route::resource('offs', App\Http\Controllers\OffController::class);
 Route::resource('leaves', App\Http\Controllers\LeaveController::class);
-Route::resource('employees', App\Http\Controllers\EmployeeController::class);
 Route::resource('documentations', App\Http\Controllers\DocumentationController::class);
 Route::resource('deductions', App\Http\Controllers\DeductionController::class);
 Route::resource('banks', App\Http\Controllers\BankController::class);
-Route::resource('attendances', App\Http\Controllers\AttendanceController::class);
 Route::resource('allowances', App\Http\Controllers\AllowanceController::class);
-Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
-Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn'])->name('attendance.check-in');
+Route::resource('employees', App\Http\Controllers\EmployeeController::class);
+Route::resource('attendances', App\Http\Controllers\AttendanceController::class);
 Route::post('verify-face', [AttendanceController::class, 'verifyFace'])->name('verify.face');
-Route::resource('attendances', AttendanceController::class);
-

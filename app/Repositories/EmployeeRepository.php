@@ -18,7 +18,8 @@ class EmployeeRepository extends BaseRepository
         'salary',
         'disability_status',
         'job_basis',
-        'emergency_contact'
+        'emergency_contact',
+        'stored_face_image_path'
     ];
 
     public function getFieldsSearchable(): array

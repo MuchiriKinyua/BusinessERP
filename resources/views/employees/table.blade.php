@@ -14,6 +14,7 @@
                 <th>Disability Status</th>
                 <th>Job Basis</th>
                 <th>Emergency Contact</th>
+                <th>Stored Face Image Path</th>
                 <th colspan="3">Action</th>
             </tr>
             </thead>
@@ -31,6 +32,7 @@
                     <td>{{ $employee->disability_status }}</td>
                     <td>{{ $employee->job_basis }}</td>
                     <td>{{ $employee->emergency_contact }}</td>
+                    <td>{{ $employee->stored_face_image_path }}</td>
                     <td  style="width: 120px">
                         {!! Form::open(['route' => ['employees.destroy', $employee->id], 'method' => 'delete']) !!}
                         <div class='btn-group'>
