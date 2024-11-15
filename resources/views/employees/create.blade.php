@@ -41,19 +41,24 @@
     <script>
     // Access the camera and stream it to the video element
     navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-            document.getElementById('video').srcObject = stream;
-        });
+    .then(stream => {
+        document.getElementById('video').srcObject = stream;
+    })
+    .catch(err => {
+        alert('Error accessing the camera: ' + err.message);
+    });
+
 
     // Capture the image from the video feed
     document.getElementById('capture').addEventListener('click', function() {
         const canvas = document.getElementById('canvas');
         const video = document.getElementById('video');
+        const hiddenInput = document.getElementById('stored_face_image_path');
+
         canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
         
         // Convert the canvas image to base64 and store it in the hidden input
         const imageData = canvas.toDataURL('image/png');
-        document.getElementById('stored_face_image_path').value = imageData;
         alert('Face captured successfully!');
     });
 </script>

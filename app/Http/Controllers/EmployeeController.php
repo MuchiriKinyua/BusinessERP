@@ -44,13 +44,30 @@ class EmployeeController extends AppBaseController
     public function store(CreateEmployeeRequest $request)
     {
         $input = $request->all();
-
+    
+        // Handle face image (Base64 to file)
+        if (!empty($input['stored_face_image_path'])) {
+            $imageData = $input['stored_face_image_path'];
+            $imageName = 'face_' . time() . '.png'; // Unique filename
+            $filePath = 'uploads/face_images/' . $imageName;
+    
+            // Decode Base64 string and save as image
+            $imageContent = base64_decode(str_replace('data:image/png;base64,', '', $imageData));
+            file_put_contents(public_path($filePath), $imageContent);
+    
+            // Update input with the stored image path
+            $input['stored_face_image_path'] = $filePath;
+        }
+    
+        // Create the employee record
         $employee = $this->employeeRepository->create($input);
-
+    
         Flash::success('Employee saved successfully.');
-
+    
         return redirect(route('employees.index'));
     }
+    
+    
 
     /**
      * Display the specified Employee.

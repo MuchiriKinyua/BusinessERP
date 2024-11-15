@@ -24,6 +24,13 @@ class CreateEmployeeRequest extends FormRequest
      */
     public function rules()
     {
-        return Employee::$rules;
+        return [
+            'first_name' => 'required|max:50',
+            'last_name' => 'required|max:50',
+            // Add other validation rules as needed
+            'stored_face_image_path' => 'required', // Ensure face image is captured
+        ];
     }
+    
+    
 }

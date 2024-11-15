@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
 {
+    public $timestamps = true; 
+
     public $table = 'employees';
 
     public $fillable = [
