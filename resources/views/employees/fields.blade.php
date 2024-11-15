@@ -75,3 +75,12 @@
     {!! Form::label('stored_face_image_path', 'Stored Face Image Path:') !!}
     {!! Form::text('stored_face_image_path', null, ['class' => 'form-control', 'required', 'maxlength' => 250, 'maxlength' => 250]) !!}
 </div>
+
+<!-- Camera Capture Field -->
+<div class="form-group col-sm-6">
+    {!! Form::label('capture_face', 'Capture Face:') !!}
+    <video id="video" width="200" height="150" autoplay></video>
+    <button id="capture" type="button" class="btn btn-secondary mt-2">Capture</button>
+    <canvas id="canvas" width="200" height="150" style="display:none;"></canvas>
+    {!! Form::hidden('stored_face_image_path', null, ['id' => 'stored_face_image_path']) !!}
+</div>

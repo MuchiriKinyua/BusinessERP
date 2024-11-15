@@ -14,7 +14,7 @@ class AttendanceController extends Controller
 {
 
     private $geofenceCenter = ['lat' => -1.2822546, 'lng' => 36.8944984];
-    private $geofenceRadius = 100;
+    private $geofenceRadius = 1000;
 
     /** @var AttendanceRepository $attendanceRepository*/
     private $attendanceRepository;

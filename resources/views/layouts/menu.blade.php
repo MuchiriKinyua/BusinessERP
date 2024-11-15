@@ -12,6 +12,12 @@
     </a>
 </li>
 
+<li class="nav-item">
+    <a href="{{ route('attendances.index') }}" class="nav-link {{ Request::is('attendances*') ? 'active' : '' }}">
+        <i class="nav-icon fas fa-home"></i>
+        <p>Attendances</p>
+    </a>
+</li>
 
 <li class="nav-item">
     <a href="{{ route('banks.index') }}" class="nav-link {{ Request::is('banks*') ? 'active' : '' }}">
@@ -31,6 +37,13 @@
     <a href="{{ route('documentations.index') }}" class="nav-link {{ Request::is('documentations*') ? 'active' : '' }}">
         <i class="nav-icon fas fa-file-alt"></i> <!-- Documentations icon -->
         <p>Documentations</p>
+    </a>
+</li>
+
+<li class="nav-item">
+    <a href="{{ route('employees.index') }}" class="nav-link {{ Request::is('employees*') ? 'active' : '' }}">
+        <i class="nav-icon fas fa-home"></i>
+        <p>Employees</p>
     </a>
 </li>
 
@@ -76,16 +89,6 @@
     </a>
 </li>
 
-<li class="nav-item">
-    <a href="{{ route('employees.index') }}" class="nav-link {{ Request::is('employees*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-home"></i>
-        <p>Employees</p>
-    </a>
-</li>
 
-<li class="nav-item">
-    <a href="{{ route('attendances.index') }}" class="nav-link {{ Request::is('attendances*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-home"></i>
-        <p>Attendances</p>
-    </a>
-</li>
+
+
