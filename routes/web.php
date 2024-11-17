@@ -33,4 +33,6 @@ Route::resource('banks', App\Http\Controllers\BankController::class);
 Route::resource('allowances', App\Http\Controllers\AllowanceController::class);
 Route::resource('employees', App\Http\Controllers\EmployeeController::class);
 Route::resource('attendances', App\Http\Controllers\AttendanceController::class);
-Route::post('verify-face', [AttendanceController::class, 'verifyFace'])->name('verify.face');
+
+
+

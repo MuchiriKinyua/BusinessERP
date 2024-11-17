@@ -15,7 +15,7 @@ class Attendance extends Model
         'check_out_time',
         'attendance_date',
         'over_time',
-        'under_time'
+        'under_time',
     ];
 
     protected $casts = [
