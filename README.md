@@ -1,3 +1,5 @@
+![alt text](bigstock-Enterprise-Resource-Planning-E-252266263.jpg)
+
 # Problem Statement </br>
 Businesses face significant challenges in managing their day-to-day operations effectively due to reliance on disparate systems for handling employee management, attendance tracking, product sales, and customer interactions. Manual processes increase the risk of human error, inefficiencies, and loss of valuable data, while lacking modern integrations such as geofencing and face recognition limits security and convenience. Small and medium enterprises require an integrated and user-friendly ERP solution to streamline operations and improve productivity. </br>
 
