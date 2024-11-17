@@ -54,82 +54,103 @@
     </div>
 
     <script>
-        let videoStream;
+let videoStream;
 
-        // Function to start the camera
-        function startCamera() {
-            const employeeId = document.getElementById('employee_id').value;
-            if (!employeeId) {
-                alert("Please select an employee.");
-                return;
+// Function to start the camera
+function startCamera() {
+    const employeeId = document.getElementById('employee_id').value;
+    if (!employeeId) {
+        alert("Please select an employee.");
+        return;
+    }
+
+    // Access the webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+            videoStream = stream;
+            const videoElement = document.getElementById('video');
+            videoElement.srcObject = stream;
+            document.getElementById('camera-container').style.display = 'block';
+            document.getElementById('verify-face-button').style.display = 'none'; // Hide the "Verify Face" button
+        })
+        .catch(function(error) {
+            console.log("Error accessing camera: ", error);
+            alert("Failed to start camera. Please check your device settings.");
+        });
+}
+
+// Function to capture image from the video stream
+function captureImage() {
+    const canvas = document.getElementById('canvas');
+    const video = document.getElementById('video');
+    const context = canvas.getContext('2d');
+
+    if (!video.srcObject) {
+        alert("Camera is not active. Please start the camera first.");
+        return;
+    }
+
+    // Draw the current frame of the video on the canvas
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Convert the canvas to a blob (PNG file)
+    canvas.toBlob(function(blob) {
+        const file = new File([blob], "captured_face.png", { type: 'image/png' });
+
+        // Show a message saying the image was captured successfully
+        document.getElementById('verification-status').textContent = "Image captured successfully. Pending verification...";
+        document.getElementById('verification-status').style.color = "orange";
+
+        // Disable the capture button after the image is captured
+        document.querySelector('.btn-success').disabled = true;
+
+        // Send the captured file to the server for verification
+        verifyCapturedFace(file);
+    }, 'image/png');
+}
+
+// Function to verify captured face
+function verifyCapturedFace(imageFile) {
+    const employeeId = document.getElementById('employee_id').value;
+    if (!employeeId) {
+        alert("Please select an employee.");
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append('image', imageFile); // Add the captured file
+    formData.append('employee_id', employeeId); // Add the employee ID
+
+    $.ajax({
+        url: '/verify-face/' + employeeId, // Endpoint to verify the face
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            // Handle successful face verification
+            if (response.message === "Face verified successfully!") {
+                document.getElementById('verification-status').textContent = "Face verified successfully!";
+                document.getElementById('verification-status').style.color = "green";
+                document.getElementById('save-attendance-button').disabled = false;
+
+                // Stop the video stream after capture
+                videoStream.getTracks().forEach(track => track.stop());
+                document.getElementById('camera-container').style.display = 'none'; // Hide the camera
             }
-
-            // Access the webcam
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function(stream) {
-                    videoStream = stream;
-                    const videoElement = document.getElementById('video');
-                    videoElement.srcObject = stream;
-                    document.getElementById('camera-container').style.display = 'block';
-                    document.getElementById('verify-face-button').style.display = 'none'; // Hide the "Verify Face" button
-                })
-                .catch(function(error) {
-                    console.log("Error accessing camera: ", error);
-                    alert("Failed to start camera. Please check your device settings.");
-                });
+        },
+        error: function(response) {
+            // Handle failed face verification (images do not match)
+            document.getElementById('verification-status').textContent = response.responseJSON.error || "Images don't match.";
+            document.getElementById('verification-status').style.color = "red";
+            document.getElementById('save-attendance-button').disabled = true;
         }
+    });
+}
 
-        // Function to capture image from the video stream
-        function captureImage() {
-            const canvas = document.getElementById('canvas');
-            const video = document.getElementById('video');
-            const context = canvas.getContext('2d');
 
-            // Draw the current frame of the video on the canvas
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            // Convert the canvas to a base64-encoded image
-            const imageData = canvas.toDataURL('image/png');
-
-            // Send the captured image to the server for verification
-            verifyCapturedFace(imageData);
-        }
-
-        // Function to verify captured face
-        function verifyCapturedFace(imageData) {
-            const employeeId = document.getElementById('employee_id').value;
-            if (!employeeId) {
-                alert("Please select an employee.");
-                return;
-            }
-
-            $.ajax({
-                url: '/verify-face/' + employeeId,
-                type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    image: imageData, // Send the captured image
-                },
-                success: function(response) {
-                    // Handle successful face verification
-                    document.getElementById('verification-status').textContent = "Face verified successfully!";
-                    document.getElementById('verification-status').style.color = "green";
-                    document.getElementById('save-attendance-button').disabled = false;
-
-                    // Stop the video stream after capture
-                    videoStream.getTracks().forEach(track => track.stop());
-                    document.getElementById('camera-container').style.display = 'none'; // Hide the camera
-                },
-                error: function(response) {
-                    // Handle failed face verification
-                    document.getElementById('verification-status').textContent = response.responseJSON.error || "Face verification failed.";
-                    document.getElementById('verification-status').style.color = "red";
-                    document.getElementById('save-attendance-button').disabled = true;
-                }
-            });
-        }
     </script>
 
 @endsection

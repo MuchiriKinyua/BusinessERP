@@ -9,6 +9,7 @@ use App\Http\Controllers\AppBaseController;
 use App\Repositories\AttendanceRepository;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Employee;
 use Flash;
 
@@ -52,8 +53,8 @@ class AttendanceController extends Controller
             return redirect()->back()->withErrors(['Employee not found.']);
         }
     
-        // Path to the employee's saved face image
-        $employeeFaceImagePath = public_path('uploads/face_images/' . $employee->face_image);
+        // Path to the employee's saved face image in the storage folder
+        $employeeFaceImagePath = public_path('storage/face_images/' . $employee->face_image);
     
         // Check if the employee's face image exists
         if (!File::exists($employeeFaceImagePath)) {
@@ -61,7 +62,7 @@ class AttendanceController extends Controller
         }
     
         // Capture the temporary face image uploaded by the user (this would need to be captured via frontend)
-        $capturedFaceImagePath = public_path('uploads/temp_captured_face.png');
+        $capturedFaceImagePath = public_path('storage/uploads/temp_captured_face.png');
     
         // Check if the captured face image exists
         if (!File::exists($capturedFaceImagePath)) {
@@ -79,19 +80,6 @@ class AttendanceController extends Controller
         $attendance = $this->attendanceRepository->create($request->all());
         Flash::success('Attendance saved successfully.');
         return redirect(route('attendances.index'));
-    }
-    
-    
-    public function show($id)
-    {
-        $attendance = $this->attendanceRepository->find($id);
-
-        if (empty($attendance)) {
-            Flash::error('Attendance not found');
-            return redirect(route('attendances.index'));
-        }
-
-        return view('attendances.show')->with('attendance', $attendance);
     }
 
     public function edit($id)
@@ -169,33 +157,43 @@ class AttendanceController extends Controller
         return $earthRadius * $c; // Distance in meters
     }
     
-    public function verifyFace($employeeId)
+    public function verifyFace(Request $request, $employeeId)
     {
         // Retrieve employee record from the database
         $employee = Employee::find($employeeId);
     
         if (!$employee) {
+            \Log::error("Employee not found with ID: $employeeId");
             return response()->json(['error' => 'Employee not found.'], 404);
         }
     
-        // Path to the employee's saved face image
-        $employeeFaceImagePath = public_path('uploads/face_images/' . $employee->face_image);
+        // Validate the uploaded image
+        if (!$request->hasFile('image')) {
+            \Log::error("No image uploaded for face verification.");
+            return response()->json(['error' => 'No image uploaded.'], 400);
+        }
+    
+        // Get the uploaded image
+        $uploadedImage = $request->file('image');
+    
+        // Save the uploaded image temporarily in the public storage folder
+        $temporaryImagePath = public_path('storage/uploads/temp_captured_face.png');
+        $uploadedImage->move(public_path('storage/uploads'), 'temp_captured_face.png');
+    
+        // Path to the employee's saved face image in the storage folder
+        $employeeFaceImagePath = public_path('storage/face_images/' . $employee->face_image);
     
         // Check if the employee's face image exists
         if (!File::exists($employeeFaceImagePath)) {
+            \Log::error("No face image found for employee ID: $employeeId at path $employeeFaceImagePath");
             return response()->json(['error' => 'No face image found for this employee.'], 404);
         }
     
-        // Path to the captured face image for verification
-        $capturedFaceImagePath = public_path('uploads/temp_captured_face.png');
-        
-        // Check if the captured face image exists
-        if (!File::exists($capturedFaceImagePath)) {
-            return response()->json(['error' => 'Captured face image not found.'], 400);
-        }
+        // Perform face verification using the compareImages method
+        $verificationResult = $this->compareImages($employeeFaceImagePath, $temporaryImagePath);
     
-        // Perform face verification
-        $verificationResult = $this->compareImages($employeeFaceImagePath, $capturedFaceImagePath);
+        // Log the result
+        \Log::info("Face verification result: $verificationResult");
     
         // Return result based on verification
         if ($verificationResult) {
@@ -220,7 +218,7 @@ class AttendanceController extends Controller
     
         // Check if the output from Python script is "True" for successful face match
         return trim($output) === "True";
-    }    
+    }
     
     public function verify($employeeId)
     {
@@ -231,15 +229,27 @@ class AttendanceController extends Controller
             return response()->json(['error' => 'Employee not found'], 404);
         }
     
-        // Simulate face verification success
-        $capturedFaceImagePath = public_path('uploads/temp_captured_face.png');  // Captured image path
-        $employeeFaceImagePath = public_path('uploads/face_images/' . $employee->face_image);  // Stored employee face image path
+        // Path to the captured face image (uploaded by the client)
+        $capturedFaceImagePath = public_path('storage/uploads/temp_captured_face.png');  
     
-        // Perform face comparison (you need to implement the compareImages function)
-        $isVerified = $this->compareImages($employeeFaceImagePath, $capturedFaceImagePath);
+        // Path to the employee's stored face image
+        $employeeFaceImagePath = public_path('storage/face_images/' . $employee->face_image);
+    
+        // Ensure the captured image exists
+        if (!File::exists($capturedFaceImagePath)) {
+            return response()->json(['error' => 'Captured face image not found.'], 400);
+        }
+    
+        // Ensure the employee's face image exists
+        if (!File::exists($employeeFaceImagePath)) {
+            return response()->json(['error' => 'Employee face image not found.'], 404);
+        }
+    
+        // Perform face comparison
+        $isVerified = $this->compareImages($capturedFaceImagePath, $employeeFaceImagePath);
     
         // Return response based on verification result
-        if ($isVerified) {
+        if ($isVerified === "True") {
             return response()->json(['message' => 'Face verification successful'], 200);
         } else {
             return response()->json(['error' => 'Face verification failed'], 400);
