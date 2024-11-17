@@ -50,17 +50,21 @@
 
 
     // Capture the image from the video feed
-    document.getElementById('capture').addEventListener('click', function() {
-        const canvas = document.getElementById('canvas');
-        const video = document.getElementById('video');
-        const hiddenInput = document.getElementById('stored_face_image_path');
+// Capture the image from the video feed
+document.getElementById('capture').addEventListener('click', function() {
+    const canvas = document.getElementById('canvas');
+    const video = document.getElementById('video');
+    const hiddenInput = document.getElementById('stored_face_image_path');
 
-        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        // Convert the canvas image to base64 and store it in the hidden input
-        const imageData = canvas.toDataURL('image/png');
-        alert('Face captured successfully!');
-    });
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Convert the canvas image to base64 and store it in the hidden input
+    const imageData = canvas.toDataURL('image/png');
+    hiddenInput.value = imageData;  // Set the Base64 data in the hidden input
+
+    alert('Face captured successfully!');
+});
+
 </script>
 
 @endsection

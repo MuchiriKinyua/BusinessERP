@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\CreateEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use App\Http\Controllers\AppBaseController;
@@ -49,14 +50,18 @@ class EmployeeController extends AppBaseController
         if (!empty($input['stored_face_image_path'])) {
             $imageData = $input['stored_face_image_path'];
             $imageName = 'face_' . time() . '.png'; // Unique filename
-            $filePath = 'uploads/face_images/' . $imageName;
+            $filePath = 'public/face_images/' . $imageName;
     
-            // Decode Base64 string and save as image
+            // Decode Base64 string and save as an image
             $imageContent = base64_decode(str_replace('data:image/png;base64,', '', $imageData));
-            file_put_contents(public_path($filePath), $imageContent);
     
-            // Update input with the stored image path
-            $input['stored_face_image_path'] = $filePath;
+            // Save the image to storage
+            Storage::put($filePath, $imageContent);
+    
+            // Update input with the stored image path (save the relative path)
+            $input['stored_face_image_path'] = 'storage/face_images/' . $imageName;
+        } else {
+            $input['stored_face_image_path'] = null; // Explicitly set to null if no image
         }
     
         // Create the employee record
@@ -67,8 +72,6 @@ class EmployeeController extends AppBaseController
         return redirect(route('employees.index'));
     }
     
-    
-
     /**
      * Display the specified Employee.
      */

@@ -24,8 +24,7 @@
         <div class="clearfix"></div>
 
         <div class="card">
-            @include('employees.table')
+            @include('employees.table', ['employees' => $employees])
         </div>
     </div>
-
 @endsection

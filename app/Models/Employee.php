@@ -53,7 +53,7 @@ class Employee extends Model
         'emergency_contact' => 'nullable|string|max:50',
         'created_at' => 'required',
         'updated_at' => 'required',
-        'stored_face_image_path' => 'required|string|max:250'
+        'stored_face_image_path' => 'nullable|string'
     ];
 
     
