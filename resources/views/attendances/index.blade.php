@@ -23,7 +23,55 @@
         <div class="clearfix"></div>
 
         <div class="card">
-            @include('attendances.table')
+            <div class="card-body p-0">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Employee ID</th>
+                            <th>Check-In Time</th>
+                            <th>Check-Out Time</th>
+                            <th>Attendance Date</th>
+                            <th>Over Time</th>
+                            <th>Under Time</th>
+                            <th>Face Verification</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($attendances as $attendance)
+                            <tr>
+                                <td>{{ $attendance->id }}</td>
+                                <td>{{ $attendance->employee->name ?? 'N/A' }}</td>
+                                <td>{{ $attendance->check_in_time }}</td>
+                                <td>{{ $attendance->check_out_time }}</td>
+                                <td>{{ $attendance->attendance_date }}</td>
+                                <td>{{ $attendance->over_time }}</td>
+                                <td>{{ $attendance->under_time }}</td>
+                                <td>
+                                    @if ($attendance->verify_face === 'not_verified')
+                                        <span class="badge bg-danger">Not Verified</span>
+                                    @else
+                                        <span class="badge bg-success">Verified</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if ($attendance->verify_face === 'not_verified')
+                                    <button class="btn btn-warning" onclick="verifyFace()">
+                                        Verify Face
+                                    </button>
+
+                                    @else
+                                        <button class="btn btn-secondary" disabled>
+                                            Verified
+                                        </button>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -41,21 +89,13 @@
                         const userLatitude = position.coords.latitude;
                         const userLongitude = position.coords.longitude;
 
-                        // Log the user's current position
-                        console.log("User's Latitude: " + userLatitude);
-                        console.log("User's Longitude: " + userLongitude);
-
                         // Calculate the distance between the user's location and the geofence center
                         const distance = getDistanceFromLatLonInMeters(userLatitude, userLongitude, geofenceLatitude, geofenceLongitude);
-
-                        // Log the distance
-                        console.log("Distance from geofence: " + distance + " meters");
 
                         if (distance <= geofenceRadius) {
                             // User is within geofence, allow access to the form
                             window.location.href = "{{ route('attendances.create') }}";
                         } else {
-                            // Inform the user they are outside the geofence
                             alert("You are outside the allowed geofence area.");
                         }
                     },
@@ -82,6 +122,24 @@
                         Math.sin(dLon / 2) * Math.sin(dLon / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c; // Distance in meters
+        }
+
+        // JavaScript for verifying face
+        function verifyFace(attendanceId) {
+            $.ajax({
+                url: `/attendances/${attendanceId}/verify-face`,
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                },
+                success: function(response) {
+                    alert('Face verified successfully!');
+                    location.reload(); // Reload the page to show the updated status
+                },
+                error: function(response) {
+                    alert('Error: ' + response.responseJSON.error);
+                }
+            });
         }
     </script>
 @endsection

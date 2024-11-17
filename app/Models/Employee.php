@@ -55,6 +55,8 @@ class Employee extends Model
         'updated_at' => 'required',
         'stored_face_image_path' => 'nullable|string'
     ];
-
-    
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
 }

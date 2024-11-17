@@ -16,6 +16,7 @@ class Attendance extends Model
         'attendance_date',
         'over_time',
         'under_time',
+        'verify_face',
     ];
 
     protected $casts = [
@@ -37,5 +38,9 @@ class Attendance extends Model
         'updated_at' => 'required'
     ];
 
-    
+    public function employee()
+{
+    return $this->belongsTo(Employee::class);
+}
+
 }
