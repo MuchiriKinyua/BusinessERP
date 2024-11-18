@@ -14,7 +14,7 @@
                 <th>Disability Status</th>
                 <th>Job Basis</th>
                 <th>Emergency Contact</th>
-                <th>Stored Face Image Path</th>
+                <th>Picture</th>
                 <th colspan="3">Action</th>
             </tr>
             </thead>

@@ -25,7 +25,7 @@
             </div>
                 <!-- Camera Section -->
     <div class="form-group col-sm-12">
-        <label for="verify">Open Camera:</label>
+        <label for="verify">Verify Your Face:</label>
         <div>
             <button type="button" id="openCameraButton" class="btn btn-primary">Open Camera</button>
             <video id="video" width="320" height="240" autoplay style="display:none;"></video>
@@ -56,7 +56,38 @@
         </div>
     </div>
 
+     <!-- Script to open camera and detect faces -->
+     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+    <script>
+        // Load face-api.js models
+        Promise.all([
+            faceapi.nets.ssdMobilenetv1.loadFromUri('/models'),
+            faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+            faceapi.nets.faceRecognitionNet.loadFromUri('/models')
+        ]).then(startVideo);
 
+        // Start video and detect faces
+        function startVideo() {
+            const video = document.getElementById('video');
+            video.addEventListener('play', () => {
+                const canvas = faceapi.createCanvasFromMedia(video);
+                document.body.append(canvas); // Optional: append the canvas to the body
+                const displaySize = { width: video.width, height: video.height };
+                faceapi.matchDimensions(canvas, displaySize);
 
+                // Detect faces and draw rectangles
+                setInterval(async () => {
+                    const detections = await faceapi.detectAllFaces(video)
+                        .withFaceLandmarks()
+                        .withFaceDescriptors();
+
+                    const resizedDetections = faceapi.resizeResults(detections, displaySize);
+                    canvas.clear();
+                    faceapi.draw.drawDetections(canvas, resizedDetections); // Draw bounding boxes
+                    faceapi.draw.drawFaceLandmarks(canvas, resizedDetections); // Draw facial landmarks
+                }, 100);
+            });
+        }
+    </script>
 
 @endsection
