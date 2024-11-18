@@ -196,11 +196,4 @@ class AttendanceController extends Controller
     
     return $earthRadius * $c; // Distance in meters
 }
-public function getEmployees() 
-{
-    // Fetch firstName and lastName from the employees table
-    $employees = Employee::select('first_name', 'last_name')->get();
-
-    return response()->json($employees);
-    }
 }

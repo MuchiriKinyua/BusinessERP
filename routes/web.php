@@ -36,3 +36,5 @@ Route::resource('allowances', App\Http\Controllers\AllowanceController::class);
 Route::resource('employees', App\Http\Controllers\EmployeeController::class);
 Route::resource('attendances', App\Http\Controllers\AttendanceController::class);
 Route::post('/attendances', [AttendanceController::class, 'store'])->name('attendances.store');
+
+// Route::get('/employees', [AttendanceController::class, 'getEmployees']);
