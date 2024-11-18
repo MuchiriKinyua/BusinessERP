@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,10 +34,15 @@ Route::resource('banks', App\Http\Controllers\BankController::class);
 Route::resource('allowances', App\Http\Controllers\AllowanceController::class);
 Route::resource('employees', App\Http\Controllers\EmployeeController::class);
 Route::resource('attendances', App\Http\Controllers\AttendanceController::class);
-Route::post('/verify-face/{employeeId}', [AttendanceController::class, 'verifyFace']);
-Route::post('/verify-face/{employeeId}', [AttendanceController::class, 'verifyFace'])->name('verify.face');
-Route::post('/verify-face/{employeeId}', [FaceVerificationController::class, 'verify'])->name('face.verify');
-Route::post('attendances/{id}/verify-face', [AttendanceController::class, 'verifyFace'])->name('attendances.verifyFace');
+Route::post('/verify-face', [AttendanceController::class, 'verifyFace']);
+Route::post('/verify-face', function(Request $request) {
+    // You can trigger the Python script using shell_exec
+    $output = shell_exec('python3 /path/to/attendance.py');
+    
+    // Return the response back to the frontend
+    return response()->json(['message' => 'Face verification completed', 'success' => true]);
+});
+
 
 
 

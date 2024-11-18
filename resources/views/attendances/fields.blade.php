@@ -7,8 +7,9 @@
 <!-- Employee Id Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('employee_id', 'Employee Id:') !!}
-    {!! Form::number('employee_id', null, ['class' => 'form-control']) !!}
+    {!! Form::select('employee_id', $employees, null, ['class' => 'form-control', 'placeholder' => 'Select Employee']) !!}
 </div>
+
 
 <!-- Check In Time Field -->
 <div class="form-group col-sm-6">
@@ -69,3 +70,4 @@
         $('#under_time').datepicker()
     </script>
 @endpush
+

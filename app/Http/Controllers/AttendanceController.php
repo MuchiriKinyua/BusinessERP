@@ -8,6 +8,8 @@ use App\Http\Requests\UpdateAttendanceRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\AttendanceRepository;
 use SomeFaceRecognitionLibrary;
+use App\Models\Employee;
+use Illuminate\Support\Facades\DB; // Add this line
 use Flash;
 
 class AttendanceController extends Controller
@@ -40,8 +42,12 @@ class AttendanceController extends Controller
      */
     public function create()
     {
-        return view('attendances.create');
+        // Fetch all employees for the dropdown with full name
+        $employees = Employee::pluck(DB::raw("CONCAT(first_name, ' ', last_name)"), 'id');
+    
+        return view('attendances.create')->with('employees', $employees);
     }
+    
 
     /**
      * Store a newly created Attendance in storage.
@@ -154,5 +160,6 @@ class AttendanceController extends Controller
     
     return $earthRadius * $c; // Distance in meters
 }
+
 
 }
