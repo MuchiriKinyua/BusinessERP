@@ -9,7 +9,9 @@ use App\Http\Controllers\AppBaseController;
 use App\Repositories\AttendanceRepository;
 use SomeFaceRecognitionLibrary;
 use App\Models\Employee;
-use Illuminate\Support\Facades\DB; // Add this line
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use SimpleFacerec;
 use Flash;
 
 class AttendanceController extends Controller
@@ -54,12 +56,46 @@ class AttendanceController extends Controller
      */
     public function store(Request $request)
     {
-        // No need to check the geofence again here
-        // You can save the attendance data directly now
+        $input = $request->all();
+        
+        // Check if a face image is provided (base64 encoded)
+        if (!empty($input['stored_face_image_path'])) {
+            $imageData = $input['stored_face_image_path'];
     
-        $attendance = $this->attendanceRepository->create($request->all());
+            // Fetch the employee name based on the selected employee_id
+            $employee = Employee::find($input['employee_id']);
+            if ($employee) {
+                // Capitalize first and last name properly
+                $capitalizedFirstName = ucfirst(strtolower($employee->first_name));
+                $capitalizedLastName = ucfirst(strtolower($employee->last_name));
+    
+                // Replace spaces with underscores (safe for filenames)
+                $sanitizedFirstName = preg_replace('/\s+/', '_', $capitalizedFirstName);
+                $sanitizedLastName = preg_replace('/\s+/', '_', $capitalizedLastName);
+    
+                // Combine into file name
+                $imageName = $sanitizedFirstName . '_' . $sanitizedLastName . '.png'; // Example: Muchiri_Kinyua.png
+    
+                $filePath = 'public/face_images/' . $imageName;
+    
+                // Decode the Base64 string and save the image to the storage
+                $imageContent = base64_decode(str_replace('data:image/png;base64,', '', $imageData));
+    
+                // Save the image to storage
+                Storage::put($filePath, $imageContent);
+    
+                // Update the input with the stored image path (save the relative path)
+                $input['stored_face_image_path'] = 'storage/face_images/' . $imageName;
+            }
+        } else {
+            $input['stored_face_image_path'] = null; // Explicitly set to null if no image
+        }
+    
+        // Create the attendance record
+        $attendance = $this->attendanceRepository->create($input);
     
         Flash::success('Attendance marked successfully.');
+    
         return redirect(route('attendances.index'));
     }    
 
@@ -160,6 +196,5 @@ class AttendanceController extends Controller
     
     return $earthRadius * $c; // Distance in meters
 }
-
 
 }

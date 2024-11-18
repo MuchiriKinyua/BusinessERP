@@ -5,9 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                    <h1>
-                        Create Attendances
-                    </h1>
+                    <h1>Create Attendance</h1>
                 </div>
             </div>
         </div>
@@ -23,30 +21,6 @@
                     @include('attendances.fields')
                 </div>
             </div>
-                <!-- Camera Section -->
-    <div class="form-group col-sm-12">
-        <label for="verify">Verify Your Face:</label>
-        <div>
-            <button type="button" id="openCameraButton" class="btn btn-primary">Open Camera</button>
-            <video id="video" width="320" height="240" autoplay style="display:none;"></video>
-        </div>
-    </div>
-            <script>
-        // Access the camera when the button is clicked
-        document.getElementById('openCameraButton').addEventListener('click', function() {
-            // Show the video element and start the camera stream
-            const video = document.getElementById('video');
-            video.style.display = 'block'; // Show the video element
-            
-            navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => {
-                video.srcObject = stream;
-            })
-            .catch(err => {
-                alert('Error accessing camera: ' + err.message);
-            });
-        });
-    </script>
 
             <div class="card-footer">
                 {!! Form::submit('Save', ['class' => 'btn btn-primary']) !!}
@@ -55,39 +29,4 @@
             {!! Form::close() !!}
         </div>
     </div>
-
-     <!-- Script to open camera and detect faces -->
-     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
-    <script>
-        // Load face-api.js models
-        Promise.all([
-            faceapi.nets.ssdMobilenetv1.loadFromUri('/models'),
-            faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-            faceapi.nets.faceRecognitionNet.loadFromUri('/models')
-        ]).then(startVideo);
-
-        // Start video and detect faces
-        function startVideo() {
-            const video = document.getElementById('video');
-            video.addEventListener('play', () => {
-                const canvas = faceapi.createCanvasFromMedia(video);
-                document.body.append(canvas); // Optional: append the canvas to the body
-                const displaySize = { width: video.width, height: video.height };
-                faceapi.matchDimensions(canvas, displaySize);
-
-                // Detect faces and draw rectangles
-                setInterval(async () => {
-                    const detections = await faceapi.detectAllFaces(video)
-                        .withFaceLandmarks()
-                        .withFaceDescriptors();
-
-                    const resizedDetections = faceapi.resizeResults(detections, displaySize);
-                    canvas.clear();
-                    faceapi.draw.drawDetections(canvas, resizedDetections); // Draw bounding boxes
-                    faceapi.draw.drawFaceLandmarks(canvas, resizedDetections); // Draw facial landmarks
-                }, 100);
-            });
-        }
-    </script>
-
 @endsection

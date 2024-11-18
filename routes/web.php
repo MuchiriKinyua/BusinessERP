@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\AttendanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,3 +35,4 @@ Route::resource('banks', App\Http\Controllers\BankController::class);
 Route::resource('allowances', App\Http\Controllers\AllowanceController::class);
 Route::resource('employees', App\Http\Controllers\EmployeeController::class);
 Route::resource('attendances', App\Http\Controllers\AttendanceController::class);
+Route::post('/attendances', [AttendanceController::class, 'store'])->name('attendances.store');
