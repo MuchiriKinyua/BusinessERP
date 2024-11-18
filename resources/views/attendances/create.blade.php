@@ -34,77 +34,82 @@
      <!-- Script to open camera and detect faces -->
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
     <script>
-        const cv = require('opencv4nodejs');
         const faceapi = require('@vladmandic/face-api');
-        const { Canvas, Image, ImageData } = require('canvas');
+        const { Canvas, Image, ImageData, createCanvas } = require('canvas');
+        const fs = require('fs-extra');
         const path = require('path');
 
-        // Patch face-api with Node.js canvas
-        faceapi.env.monkeyPatch({ Canvas, Image, ImageData });
+        // Monkey-patch face-api to use Node.js Canvas
+        f       aceapi.env.monkeyPatch({ Canvas, Image, ImageData });
 
         (async () => {
-        // Load face-api models
         const modelPath = path.join(__dirname, 'models'); // Folder where face-api models are stored
+        const videoPath = 'video.mp4'; // Path to your input video (can be webcam stream or pre-recorded video)
+        
+        // Load models
         await faceapi.nets.ssdMobilenetv1.loadFromDisk(modelPath);
-        await faceapi.nets.faceRecognitionNet.loadFromDisk(modelPath);
         await faceapi.nets.faceLandmark68Net.loadFromDisk(modelPath);
+        await faceapi.nets.faceRecognitionNet.loadFromDisk(modelPath);
 
-        // Load reference face images and generate face descriptors
-        const labeledFaceDescriptors = await Promise.all(
+        // Load labeled images for recognition
+        const labeledDescriptors = await Promise.all(
             ['person1', 'person2'].map(async (label) => {
             const imgPath = path.join(__dirname, 'public/storage/face_images', `${label}.jpg`);
-            const img = await canvas.loadImage(imgPath);
-            const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
-            if (!detections) {
-                throw new Error(`No face detected for ${label}`);
+            const img = await faceapi.bufferToImage(fs.readFileSync(imgPath));
+            const detection = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+            i   f (!detection) {
+                t       hrow new Error(`No face detected for ${label}`);
             }
-            return new faceapi.LabeledFaceDescriptors(label, [detections.descriptor]);
+            return new faceapi.LabeledFaceDescriptors(label, [detection.descriptor]);
             })
         );
 
-        const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors);
+        const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors);
 
-        // Open webcam
-        const webcam = new cv.VideoCapture(0);
-        const delay = 10; // 10 ms delay for frame reading
+        console.log('Processing video...');
 
-        console.log('Press "ESC" to exit.');
+        // Simulate video processing by reading frames from a video file
+        const ffmpeg = require('fluent-ffmpeg');
+        const outputFrames = path.join(__dirname, 'output'); // Directory to store processed frames
+        await fs.ensureDir(outputFrames);
 
-        while (true) {
-            const frame = webcam.read();
-            const resizedFrame = frame.resize(480, 640); // Resize frame for better performance
+        // Extract frames and process each frame
+        ffmpeg(videoPath)
+            .       outputOptions('-vf', 'fps=1') // Extract one frame per second
+            .output(path.join(outputFrames, 'frame-%03d.png'))
+            .on('end', async () => {
+            console.log('Frames extracted, processing faces...');
 
-            // Convert OpenCV Mat to a Canvas Image
-            const frameCanvas = cv.imencode('.jpg', resizedFrame).toString('base64');
-            const img = await canvas.loadImage(`data:image/jpeg;base64,${frameCanvas}`);
+            const frames = await fs.readdir(outputFrames);
+            
+            for (const frameFile of frames) {
+                const framePath = path.join(outputFrames, frameFile);
+                const frame = await faceapi.bufferToImage(fs.readFileSync(framePath));
+                const detections = await faceapi.detectAllFaces(frame).withFaceLandmarks().withFaceDescriptors();
 
-            // Detect faces in the frame
-            const detections = await faceapi.detectAllFaces(img).withFaceLandmarks().withFaceDescriptors();
-            const results = detections.map((d) => faceMatcher.findBestMatch(d.descriptor));
+                const canvas = createCanvas(frame.width, frame.height);
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(frame, 0, 0);
 
-            results.forEach((result, i) => {
-            const { box } = detections[i].detection;
-            const { x, y, width, height } = box;
-            const label = result.toString();
+                detections.forEach((detection) => {
+                const box = detection.detection.box;
+                const match = faceMatcher.findBestMatch(detection.descriptor);
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(box.x, box.y, box.width, box.height);
+                ctx.fillStyle = 'red';
+                ctx.font = '20px Arial';
+                ctx.fillText(match.toString(), box.x, box.y - 10);
+                });
 
-            // Draw the bounding box and label on the frame
-            frame.drawRectangle(
-                new cv.Rect(x, y, width, height),
-                new cv.Vec(0, 0, 255), // Red box
-                2
-            );
-            frame.putText(label, new cv.Point2(x, y - 10), cv.FONT_HERSHEY_SIMPLEX, 0.5, new cv.Vec(255, 255, 255), 2);
-            });
+                // Save processed frame
+                const outputFilePath = path.join(outputFrames, `processed-${frameFile}`);
+                fs.writeFileSync(outputFilePath, canvas.toBuffer('image/png'));
+            }   
 
-            // Display the frame
-            cv.imshow('Webcam', frame);
-
-            const key = cv.waitKey(delay);
-            if (key === 27) break; // Exit on "ESC" key
-        }
-
-        webcam.release();
-        cv.destroyAllWindows();
+            console.log('Face recognition processing complete. Check the output folder for results.');
+            })
+            .run();
         })();
 
     </script>
