@@ -29,4 +29,32 @@
             {!! Form::close() !!}
         </div>
     </div>
+
+     <!-- Script to open camera and detect faces -->
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+    <script>
+        async function loadLabeledImages() {
+            const response = await fetch('http://localhost/api/employees');
+            const employees = await response.json();
+            console.log(employees)
+
+            // Map employees to labels
+            const labels = employees.map(employee => `${employee.first_name}_${employee.last_name}`);
+
+            return Promise.all(
+                labels.map(async (label) => {
+                    const descriptions = [];
+                    for (let i = 1; i <= 3; i++) {
+                        const img = await faceapi.fetchImage(`/public/storage/face_images${label}/${i}.png`);
+                        const detections = await faceapi.detectSingleFace(img)
+                                                    .withFaceLandmarks()
+                                                    .withFaceDescriptor();
+                        descriptions.push(detections.descriptor);
+                    }
+                    return new faceapi.LabeledFaceDescriptors(label, descriptions);
+                })
+            );
+        }
+    </script>
+
 @endsection
