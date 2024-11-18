@@ -4,9 +4,10 @@
     {!! Form::number('id', null, ['class' => 'form-control']) !!}
 </div>
 
+<!-- Employee Id Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('employee_id', 'Employee:') !!}
-    {!! Form::select('employee_id', $employees, null, ['class' => 'form-control', 'id' => 'employee_id']) !!}
+    {!! Form::label('employee_id', 'Employee Id:') !!}
+    {!! Form::number('employee_id', null, ['class' => 'form-control']) !!}
 </div>
 
 <!-- Check In Time Field -->

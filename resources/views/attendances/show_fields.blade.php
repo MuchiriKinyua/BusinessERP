@@ -39,3 +39,4 @@
     {!! Form::label('under_time', 'Under Time:') !!}
     <p>{{ $attendance->under_time }}</p>
 </div>
+
