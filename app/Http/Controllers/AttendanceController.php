@@ -16,7 +16,7 @@ class AttendanceController extends Controller
 {
 
     private $geofenceCenter = ['lat' => -1.2822546, 'lng' => 36.8944984];
-    private $geofenceRadius = 1000;
+    private $geofenceRadius = 1000000;
 
     /** @var AttendanceRepository $attendanceRepository*/
     private $attendanceRepository;
@@ -161,5 +161,12 @@ class AttendanceController extends Controller
     return $earthRadius * $c; // Distance in meters
 }
 
+public function getEmployees() 
+{
+    // Fetch firstName and lastName from the employees table
+    $employees = Employee::select('first_name', 'last_name')->get();
+
+    return response()->json($employees);
+    }
 
 }

@@ -57,36 +57,29 @@
     </div>
 
      <!-- Script to open camera and detect faces -->
-     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
     <script>
-        // Load face-api.js models
-        Promise.all([
-            faceapi.nets.ssdMobilenetv1.loadFromUri('/models'),
-            faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-            faceapi.nets.faceRecognitionNet.loadFromUri('/models')
-        ]).then(startVideo);
+        async function loadLabeledImages() {
+            const response = await fetch('http://localhost/api/employees');
+            const employees = await response.json();
+            console.log(employees)
 
-        // Start video and detect faces
-        function startVideo() {
-            const video = document.getElementById('video');
-            video.addEventListener('play', () => {
-                const canvas = faceapi.createCanvasFromMedia(video);
-                document.body.append(canvas); // Optional: append the canvas to the body
-                const displaySize = { width: video.width, height: video.height };
-                faceapi.matchDimensions(canvas, displaySize);
+            // Map employees to labels
+            const labels = employees.map(employee => `${employee.first_name}_${employee.last_name}`);
 
-                // Detect faces and draw rectangles
-                setInterval(async () => {
-                    const detections = await faceapi.detectAllFaces(video)
-                        .withFaceLandmarks()
-                        .withFaceDescriptors();
-
-                    const resizedDetections = faceapi.resizeResults(detections, displaySize);
-                    canvas.clear();
-                    faceapi.draw.drawDetections(canvas, resizedDetections); // Draw bounding boxes
-                    faceapi.draw.drawFaceLandmarks(canvas, resizedDetections); // Draw facial landmarks
-                }, 100);
-            });
+            return Promise.all(
+                labels.map(async (label) => {
+                    const descriptions = [];
+                    for (let i = 1; i <= 3; i++) {
+                        const img = await faceapi.fetchImage(`/public/storage/face_images${label}/${i}.png`);
+                        const detections = await faceapi.detectSingleFace(img)
+                                                    .withFaceLandmarks()
+                                                    .withFaceDescriptor();
+                        descriptions.push(detections.descriptor);
+                    }
+                    return new faceapi.LabeledFaceDescriptors(label, descriptions);
+                })
+            );
         }
     </script>
 
