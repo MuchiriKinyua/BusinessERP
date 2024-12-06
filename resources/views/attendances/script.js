@@ -1,0 +1,1 @@
+/home/muchiri/MyPartition/sda4/Users/Muchiri/Documents/Work/Internship - Learnsoft Beliotech Solutions (Oct 2024 - )/Projects/face recognition/BusinessERP/script.js

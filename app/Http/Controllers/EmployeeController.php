@@ -52,16 +52,16 @@ class EmployeeController extends AppBaseController
             
             // Use the first name and last name from the input to create the image name
             $imageName = $input['first_name'] . '_' . $input['last_name'] . '.png'; // Concatenate first and last name with an underscore
-            $filePath = 'public/face_images/' . $imageName;
-        
+            $filePath = 'labels/' . $imageName; // Save directly in 'labels' directory (not under public)
+            
             // Decode Base64 string and save as an image
             $imageContent = base64_decode(str_replace('data:image/png;base64,', '', $imageData));
-        
-            // Save the image to storage
-            Storage::put($filePath, $imageContent);
-        
+            
+            // Save the image to the 'labels' directory (using the absolute path here)
+            file_put_contents(public_path($filePath), $imageContent); // Since you linked 'public/labels' to the 'labels' folder
+            
             // Update input with the stored image path (save the relative path)
-            $input['stored_face_image_path'] = 'storage/face_images/' . $imageName;
+            $input['stored_face_image_path'] = $filePath; // Adjust path to reflect 'labels' folder
         } else {
             $input['stored_face_image_path'] = null; // Explicitly set to null if no image
         }
@@ -73,7 +73,6 @@ class EmployeeController extends AppBaseController
         
         return redirect(route('employees.index'));
     }
-    
     
     /**
      * Display the specified Employee.

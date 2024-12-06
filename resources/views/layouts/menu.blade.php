@@ -14,7 +14,7 @@
 
 <li class="nav-item">
     <a href="{{ route('attendances.index') }}" class="nav-link {{ Request::is('attendances*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-home"></i>
+        <i class="nav-icon fas fa-calendar-check"></i>
         <p>Attendances</p>
     </a>
 </li>
@@ -42,7 +42,7 @@
 
 <li class="nav-item">
     <a href="{{ route('employees.index') }}" class="nav-link {{ Request::is('employees*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-home"></i>
+        <i class="nav-icon fas fa-user-tie"></i>
         <p>Employees</p>
     </a>
 </li>
